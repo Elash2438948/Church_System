@@ -1,0 +1,29 @@
+name: Branch Name Validation
+
+
+on:
+    push:
+        branches:
+            - develop
+            - main
+
+
+jobs:
+    validate:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Validate branch name
+            run: |
+                BRANCH_NAME=$(echo ${{ github.event.ref }} | cut -d '/' -f 3-)
+                if [[ $BRANCH_NAME =~ ^(feature|bugfix|release)/ ]]; then
+                    if [[ $BRANCH_NAME =~ ^feature/ ]] && [[ ${{ github.base_ref }} != "develop" ]]; then
+                        echo "Feature branches must be created off develop"
+                        exit 1
+                    elif [[ $BRANCH_NAME =~ ^(bugfix|release)/ ]] && [[ ${{ github.base_ref }} != "develop" ]]; then
+                        echo "Bugfix and release branches must be created off develop"
+                        exit 1
+                    fi
+                elif [[ $BRANCH_NAME =~ ^hotfix/ ]] && [[ ${{ github.base_ref }} != "main" ]]; then
+                    echo "Hotfix branches must be created off main"
+                    exit 1
+                fi

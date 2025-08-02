@@ -1,0 +1,21 @@
+name: Prevent Branch Deletion
+
+on:
+  delete:
+    branches:
+      - main
+      - develop
+      - feature/*
+      - bugfix/*
+      - release/*
+      - hotfix/*
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore deleted branch
+        run: |
+          git fetch origin
+          git branch ${{ github.event.ref }} origin/${{ github.event.ref }}
+          git push origin ${{ github.event.ref }}
